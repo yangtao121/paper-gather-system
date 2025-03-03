@@ -1,0 +1,1 @@
+from .searngx import SearxTool
