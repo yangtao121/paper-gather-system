@@ -124,6 +124,13 @@ class ArxivData:
             raise Exception(f"PDF下载失败: {str(e)}")
         except IOError as e:
             raise Exception(f"PDF保存失败: {str(e)}")
+        
+    def clearPdf(self):
+        """
+        清空PDF内容, 释放内存
+        """
+        self.pdf = None
+        
 
 
 class ArxivResult:

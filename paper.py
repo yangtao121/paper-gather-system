@@ -118,6 +118,7 @@ class PaperProcessor:
                         f"Get response from paperless: {paperless_result}")
 
                     # 删除缓存
+                    paper.clearPdf()
                     os.remove(paper.pdf_path)
 
             llm_end_time = time.time()
@@ -135,4 +136,4 @@ if __name__ == "__main__":
     )
 
     paper_processor.searchPaperByTopic(
-        topic="learning navigation", search_limit=10)
+        topic="paper of learning navigation", search_limit=10)
