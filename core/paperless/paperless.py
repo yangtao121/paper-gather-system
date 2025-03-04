@@ -1,10 +1,12 @@
 import os
 import json
+import requests
 from typing import Any, Dict, Generator, List, Optional, Union
 from requests import Session, Response
 from requests.adapters import HTTPAdapter
 from requests.auth import AuthBase, HTTPBasicAuth
 from urllib3.util.retry import Retry
+from tqdm import tqdm
 
 
 class PaperlessAPIError(Exception):
@@ -26,7 +28,7 @@ class PaperlessClient:
     ):
         """
         Initialize Paperless-ngx API client
-        
+
         :param base_url: Base URL of Paperless instance (e.g., "http://localhost:8000")
         :param auth: Authentication method. Can be:
             - requests.auth.AuthBase instance
@@ -94,7 +96,7 @@ class PaperlessClient:
     ) -> Response:
         """
         Execute API request with error handling
-        
+
         :raises PaperlessAPIError: For API errors
         """
         url = f"{self.base_url}{endpoint}"
@@ -137,7 +139,7 @@ class PaperlessClient:
     ) -> Dict[str, Any]:
         """
         Upload a document to Paperless
-        
+
         :param file_path: Path to document file
         :param metadata: Additional document metadata
         :return: Consumption task information
@@ -155,10 +157,13 @@ class PaperlessClient:
         }
         metadata = {k: v for k, v in metadata.items() if v is not None}
 
-        with open(file_path, 'rb') as f:
-            files = {'document': f}
-            response = self._request(
-                'POST', endpoint, data=metadata, files=files)
+        # 上传进度条
+        with tqdm(total=os.path.getsize(file_path), desc="Uploading document", unit='B', unit_scale=True) as pbar:
+            with open(file_path, 'rb') as f:
+                files = {'document': f}
+                response = self._request(
+                    'POST', endpoint, data=metadata, files=files)
+                pbar.update(os.path.getsize(file_path))
 
         return response.json()
 
@@ -171,7 +176,7 @@ class PaperlessClient:
     ) -> Dict[str, Any]:
         """
         Get paginated list of documents with optional filtering
-        
+
         :param query: Full text search query
         :param page: Page number
         :param page_size: Items per page (max 1000)
@@ -196,7 +201,7 @@ class PaperlessClient:
     ) -> Generator[Dict[str, Any], None, None]:
         """
         Generator that yields all documents matching criteria
-        
+
         Usage:
             for doc in client.iterate_all_documents(query="invoice"):
                 process_document(doc)
@@ -225,7 +230,7 @@ class PaperlessClient:
     ) -> Dict[str, Any]:
         """
         Perform bulk operation on documents
-        
+
         :param document_ids: List of document IDs to affect
         :param operation: One of supported operations (set_correspondent, add_tag, etc.)
         :param parameters: Operation-specific parameters
@@ -261,7 +266,7 @@ class PaperlessClient:
     ) -> List[Dict[str, Any]]:
         """
         Filter documents using custom field query
-        
+
         :param field_name: Name of custom field
         :param operator: Query operator (exact, contains, range, etc.)
         :param value: Query value

@@ -2,7 +2,8 @@ from langchain_community.utilities import SearxSearchWrapper
 from langchain_community.tools.searx_search.tool import SearxSearchResults
 from loguru import logger
 import pprint
-
+from tqdm import tqdm
+import os
 
 import requests
 
@@ -30,23 +31,99 @@ class ArxivData:
         # 获取pdf链接
         self.pdf_link = self.link.replace("abs", "pdf")
 
-        # 论文的tag
-        self.tag = None
+        self.pdf = None
 
-    def setTag(self, tag: str):
+        self.pdf_path = None
+
+        # 论文的tag
+        self.tag: list[str] = []
+
+    def setTag(self, tag: list[str]):
         """
         设置论文的tag
         """
+
+        if not isinstance(tag, list):
+            logger.error(
+                f"The tag of the paper is not a list, but a {type(tag)}.")
+            return
         self.tag = tag
 
-    # def downloadPdf(self, save_path: str):
-    #     """
-    #     下载pdf
-    #     """
-    #     response = requests.get(self.pdf_link)
-    #     file_name =
-    #     with open(save_path, "wb") as f:
-    #         f.write(response.content)
+    def downloadPdf(self, save_path: str = None):
+        """
+        下载PDF并保存到指定路径
+
+        Args:
+            save_path: PDF保存路径
+        Returns:
+            bytes: PDF内容
+        Raises:
+            RequestException: 当下载失败时抛出
+            IOError: 当文件保存失败时抛出
+        """
+        if not self.pdf_link:
+            raise ValueError("PDF链接不能为空")
+
+        try:
+            # 发送HEAD请求获取文件大小
+            head = requests.head(self.pdf_link)
+            total_size = int(head.headers.get('content-length', 0))
+
+            # 使用流式请求下载
+            response = requests.get(self.pdf_link, stream=True)
+            response.raise_for_status()  # 检查响应状态
+
+            # 初始化进度条
+            progress = 0
+            chunk_size = 1024  # 1KB
+
+            content = bytearray()
+
+            # 同时下载到内存和保存到文件
+            # 去除标题中的非法字符
+            pdf_title = self.title.replace("/", "_")
+            pdf_title = pdf_title.replace(":", "_")
+            pdf_title = pdf_title.replace("*", "_")
+            pdf_title = pdf_title.replace("?", "_")
+            pdf_title = pdf_title.replace("\\", "_")
+            pdf_title = pdf_title.replace("<", "_")
+            pdf_title = pdf_title.replace(">", "_")
+            pdf_title = pdf_title.replace("|", "_")
+
+            # pdf_title = pdf_title.replace(" ", "_")
+
+            # 如果没有指定保存路径，则不保存
+            if save_path is None:
+                with tqdm(total=total_size, desc="Downloading PDF", unit='B', unit_scale=True) as pbar:
+                    for chunk in response.iter_content(chunk_size=chunk_size):
+                        if chunk:
+                            content.extend(chunk)
+                            progress += len(chunk)
+                            pbar.update(len(chunk))
+            else:
+                pdf_path = os.path.join(save_path, pdf_title + ".pdf")
+                
+                self.pdf_path = pdf_path
+
+                with open(pdf_path, 'wb') as f, \
+                        tqdm(total=total_size, desc="Downloading PDF", unit='B', unit_scale=True) as pbar:
+                    for chunk in response.iter_content(chunk_size=chunk_size):
+                        if chunk:
+                            content.extend(chunk)
+                            f.write(chunk)
+                            progress += len(chunk)
+                            pbar.update(len(chunk))
+
+                logger.info(f"PDF已保存到: {pdf_path}")
+
+            self.pdf = bytes(content)
+
+            return self.pdf
+
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"PDF下载失败: {str(e)}")
+        except IOError as e:
+            raise Exception(f"PDF保存失败: {str(e)}")
 
 
 class ArxivResult:
@@ -110,6 +187,8 @@ class SearxTool:
 
         eval_results = eval(results)
 
+        # pprint.pprint(results)
+
         if not self.checkResult(eval_results):
             logger.error(f"No good Search Result, please try again.")
             return ArxivResult([])
@@ -129,7 +208,7 @@ class SearxTool:
 
 if __name__ == "__main__":
     searngx_tool = SearxTool(search_host="http://192.168.5.54:8080")
-    results = searngx_tool.arxivSearch(query="",
+    results = searngx_tool.arxivSearch(query="learning navigation",
                                        num_results=5)
     print(results.results[0].title)
     # print(results.results[0].link)

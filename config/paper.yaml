@@ -1,6 +1,12 @@
 dify_user: user123
-
 dify_url: http://192.168.5.72
-searxng_host: http://192.168.5.54:8080
 dify_api_paper_detect: app-nxWuBjy7S969esLGJtPyzdvN
+dify_api_paper_tag: app-0ZFysETOZbwPZvWJL67Tx8EP
 
+searxng_host: http://192.168.5.54:8080
+
+paperless_url: http://192.168.5.54:8000
+paperless_token: 788eeac855368cf6050554e31df26f9f0adfe5ed
+
+save_paper: true
+cache_dir: src/papers
