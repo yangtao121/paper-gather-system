@@ -7,7 +7,7 @@ from requests.adapters import HTTPAdapter
 from requests.auth import AuthBase, HTTPBasicAuth
 from urllib3.util.retry import Retry
 from tqdm import tqdm
-
+from loguru import logger
 
 class PaperlessAPIError(Exception):
     """Base exception for Paperless API errors"""
@@ -58,9 +58,59 @@ class PaperlessClient:
 
         # Set default headers
         self.session.headers.update({
-            'Accept': f'application/json; version={self.api_version}',
-            'Content-Type': 'application/json'
+            'Accept': f'application/json; version={self.api_version}'
         })
+        self.session.headers.pop('Content-Type', None)
+
+        self._tags_cache = None
+
+    def get_tags(self, force_refresh: bool = False) -> Dict[str, int]:
+        """获取所有标签的名称到ID的映射（带缓存）"""
+        if self._tags_cache is None or force_refresh:
+            self._tags_cache = {
+                tag['name']: tag['id']
+                for tag in self._paginate("/api/tags/")
+            }
+        return self._tags_cache
+
+    def create_tag(self, name: str, color: str = "#a6cee3") -> int:
+        """
+        创建新标签并返回标签ID
+        :param name: 标签名称
+        :param color: 十六进制颜色代码（默认：#a6cee3）
+        :return: 新建标签的ID
+        """
+        response = self._request(
+            method='POST',
+            endpoint='/api/tags/',
+            data={
+                'name': name,
+                'color': color
+            }
+        )
+        new_tag = response.json()
+
+        # 更新缓存
+        if self._tags_cache is not None:
+            self._tags_cache[name] = new_tag['id']
+
+        return new_tag['id']
+
+
+    def _paginate(self, endpoint: str, params: Optional[Dict] = None) -> Generator[Dict, None, None]:
+        """通用分页获取所有结果的生成器"""
+        page = 1
+        while True:
+            response = self._request('GET', endpoint, params={
+                'page': page,
+                'page_size': 100,
+                **(params or {})
+            })
+            data = response.json()
+            yield from data['results']
+            if not data.get('next'):
+                break
+            page += 1
 
     def _setup_auth(self, auth: Union[AuthBase, str, tuple]) -> None:
         """Configure authentication based on provided credentials"""
@@ -92,7 +142,8 @@ class PaperlessClient:
         endpoint: str,
         params: Optional[Dict] = None,
         data: Optional[Union[Dict, List]] = None,
-        files: Optional[Dict] = None
+        files: Optional[Dict] = None,
+        headers: Optional[Dict] = None
     ) -> Response:
         """
         Execute API request with error handling
@@ -134,8 +185,10 @@ class PaperlessClient:
         document_type_id: Optional[int] = None,
         storage_path_id: Optional[int] = None,
         tag_ids: Optional[List[int]] = None,
+        tag_names: Optional[List[str]] = None,
         archive_serial_number: Optional[int] = None,
-        custom_field_ids: Optional[List[int]] = None
+        custom_field_ids: Optional[List[int]] = None,
+        auto_create_tags: bool = False  # 新增参数
     ) -> Dict[str, Any]:
         """
         Upload a document to Paperless
@@ -144,6 +197,29 @@ class PaperlessClient:
         :param metadata: Additional document metadata
         :return: Consumption task information
         """
+
+        if tag_ids is not None and tag_names is not None:
+            raise ValueError("不能同时指定 tag_ids 和 tag_names")
+
+        resolved_tag_ids = tag_ids
+        if tag_names is not None:
+            tag_map = self.get_tags()
+            missing_tags = [name for name in tag_names if name not in tag_map]
+            
+            # 自动创建缺失标签
+            if missing_tags and auto_create_tags:
+                logger.info(f"Creating missing tags: {', '.join(missing_tags)}")
+                for name in missing_tags:
+                    new_id = self.create_tag(name)
+                    tag_map[name] = new_id
+                # 更新缓存
+                self._tags_cache = tag_map
+            elif missing_tags:
+                raise ValueError(f"以下标签不存在: {', '.join(missing_tags)}")
+                
+            resolved_tag_ids = [tag_map[name] for name in tag_names]
+
+
         endpoint = "/api/documents/post_document/"
         metadata = {
             'title': title,
@@ -151,7 +227,7 @@ class PaperlessClient:
             'correspondent': correspondent_id,
             'document_type': document_type_id,
             'storage_path': storage_path_id,
-            'tags': tag_ids,
+            'tags': resolved_tag_ids,
             'archive_serial_number': archive_serial_number,
             'custom_fields': custom_field_ids
         }
@@ -162,7 +238,11 @@ class PaperlessClient:
             with open(file_path, 'rb') as f:
                 files = {'document': f}
                 response = self._request(
-                    'POST', endpoint, data=metadata, files=files)
+                    'POST', endpoint,
+                    data=metadata,
+                    files=files,
+                    headers={'Content-Type': None}  # 让requests自动生成boundary
+                )
                 pbar.update(os.path.getsize(file_path))
 
         return response.json()
@@ -258,6 +338,11 @@ class PaperlessClient:
 
     # Custom Fields ------------------------------------------------------------
 
+    def get_custom_fields(self) -> List[Dict[str, Any]]:
+        """获取所有自定义字段列表"""
+        response = self._request('GET', '/api/custom_fields/')
+        return response.json()['results']
+
     def filter_by_custom_field(
         self,
         field_name: str,
@@ -272,7 +357,22 @@ class PaperlessClient:
         :param value: Query value
         :return: List of matching documents
         """
-        query = json.dumps([field_name, operator, value])
+        # 获取自定义字段ID映射
+        fields_map = {f['name']: f['id'] for f in self.get_custom_fields()}
+        field_id = fields_map.get(field_name)
+        if not field_id:
+            raise ValueError(f"Invalid custom field name: {field_name}")
+
+        query = json.dumps([field_id, operator, value])
+        result = self._request('GET', "/api/documents/",
+                               params={'custom_field_query': query})
+        return result.json()['results']
+        fields_map = {f['name']: f['id'] for f in self.get_custom_fields()}
+        field_id = fields_map.get(field_name)
+        if not field_id:
+            raise ValueError(f"Invalid custom field name: {field_name}")
+
+        query = json.dumps([field_id, operator, value])
         result = self._request('GET', "/api/documents/",
                                params={'custom_field_query': query})
         return result.json()['results']
@@ -281,9 +381,20 @@ class PaperlessClient:
 
     def get_task_status(self, task_id: str) -> Dict[str, Any]:
         """Get status of an asynchronous task"""
-        response = self._request('GET', "/api/tasks/",
-                                 params={'task_id': task_id})
-        return response.json()
+        response = self._request(
+            'POST', endpoint,
+            data=metadata,
+            files=files,
+            headers={'Content-Type': None}
+        )
+
+        try:
+            result = response.json()
+            if isinstance(result, dict):
+                return result
+            return {'task_id': str(result)}
+        except json.JSONDecodeError:
+            return {'task_id': response.text.strip()}
 
 # Helper function for environment-based configuration
 
@@ -313,29 +424,33 @@ if __name__ == "__main__":
     try:
         task = client.upload_document(
             file_path="/Volumes/personal_folder/code/paper-gather-system/src/papers/Exploring the Generalizability of Geomagnetic Navigation_ A Deep Reinforcement Learning approach with Policy Distillation.pdf",
-            title="2023 Annual Invoice",
-            # correspondent_id=5,
-            # tag_ids=[1, 3],
-            # document_type_id=2
+            title="Exploring the Generalizability of Geomagnetic Navigation: A Deep Reinforcement Learning Approach with Policy Distillation",
+            tag_names=["deep-learning", "reinforcement-learning", "navigation"],
+            auto_create_tags=True
         )
-        print(f"Document consumption started. Task ID: {task['task_id']}")
+
+        print(task)
+        # if isinstance(task, dict):
+        #     print(f"文档上传成功，任务ID: {task.get('task_id', '未知')}")
+        # else:
+        #     print(f"收到意外响应格式: {task}")
     except PaperlessAPIError as e:
         print(f"Upload failed: {str(e)}")
 
     # Example 3: Process all documents matching a query
-    for doc in client.iterate_all_documents(query="financial", page_size=50):
-        print(f"Processing document {doc['id']}: {doc['title']}")
-        if doc['correspondent'] is None:
-            client.bulk_edit_documents(
-                document_ids=[doc['id']],
-              #  operation='set_correspondent',
-#             parameters={'correspondent': 5}
-            )
+#     for doc in client.iterate_all_documents(query="financial", page_size=50):
+#         print(f"Processing document {doc['id']}: {doc['title']}")
+#         if doc['correspondent'] is None:
+#             client.bulk_edit_documents(
+#                 document_ids=[doc['id']],
+#               #  operation='set_correspondent',
+# #             parameters={'correspondent': 5}
+#             )
 
-    # Example 4: Complex custom field query
-    projects = client.filter_by_custom_field(
-        field_name="Project",
-        operator="in",
-        value=["Alpha", "Beta"]
-    )
-    print(f"Found {len(projects)} documents in target projects")
+#     # Example 4: Complex custom field query
+#     projects = client.filter_by_custom_field(
+#         field_name="Project",
+#         operator="in",
+#         value=["Alpha", "Beta"]
+#     )
+#     print(f"Found {len(projects)} documents in target projects")

@@ -35,6 +35,10 @@ class PaperProcessor:
             auth=self.config["paperless_token"]
         )
 
+        # 检查缓存区有没有创建
+        if not os.path.exists(self.config["cache_dir"]):
+            os.makedirs(self.config["cache_dir"])
+
     def searchPaperByTopic(self, topic: str,
                            search_limit: int = 10,
                            searngx_kwargs: dict = {}
@@ -105,10 +109,13 @@ class PaperProcessor:
                     paperless_result = self.paperless_client.upload_document(
                         file_path=paper.pdf_path,
                         title=paper.title,
-                        # tags=paper.tag
+                        tag_names=paper.tag,
+                        auto_create_tags=True,
                     )
 
-                    print(paperless_result)
+                    # print(paperless_result)
+                    logger.info(
+                        f"Get response from paperless: {paperless_result}")
 
                     # 删除缓存
                     os.remove(paper.pdf_path)
@@ -128,4 +135,4 @@ if __name__ == "__main__":
     )
 
     paper_processor.searchPaperByTopic(
-        topic="learning navigation", search_limit=2)
+        topic="learning navigation", search_limit=10)
