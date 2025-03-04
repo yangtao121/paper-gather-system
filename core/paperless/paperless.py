@@ -303,16 +303,20 @@ def from_environment() -> PaperlessClient:
 # Example usage
 if __name__ == "__main__":
     # Example 1: Environment-configured client
-    client = from_environment()
+    # client = from_environment()
+    client = PaperlessClient(
+        base_url="http://192.168.5.54:8000",
+        auth=("788eeac855368cf6050554e31df26f9f0adfe5ed")
+    )
 
     # Example 2: Upload document with metadata
     try:
         task = client.upload_document(
-            file_path="/path/to/invoice.pdf",
+            file_path="/Volumes/personal_folder/code/paper-gather-system/src/papers/Exploring the Generalizability of Geomagnetic Navigation_ A Deep Reinforcement Learning approach with Policy Distillation.pdf",
             title="2023 Annual Invoice",
-            correspondent_id=5,
-            tag_ids=[1, 3],
-            document_type_id=2
+            # correspondent_id=5,
+            # tag_ids=[1, 3],
+            # document_type_id=2
         )
         print(f"Document consumption started. Task ID: {task['task_id']}")
     except PaperlessAPIError as e:
@@ -324,8 +328,8 @@ if __name__ == "__main__":
         if doc['correspondent'] is None:
             client.bulk_edit_documents(
                 document_ids=[doc['id']],
-                operation='set_correspondent',
-                parameters={'correspondent': 5}
+              #  operation='set_correspondent',
+#             parameters={'correspondent': 5}
             )
 
     # Example 4: Complex custom field query
