@@ -63,6 +63,11 @@ class PaperProcessor:
 
         for paper in search_result:
             llm_start_time = time.time()
+            # check the paper has been analyzed
+            if self.paperless_client.document_exists(paper.title):
+                logger.info(
+                    f"The paper \"{paper.title}\" has been analyzed.")
+                continue
             logger.info(
                 f"Start to check the paper \"{paper.title}\" corresponding to the topic \"{topic}\".")
             result = self.dify_client.workflow_run(

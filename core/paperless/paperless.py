@@ -9,6 +9,7 @@ from urllib3.util.retry import Retry
 from tqdm import tqdm
 from loguru import logger
 
+
 class PaperlessAPIError(Exception):
     """Base exception for Paperless API errors"""
 
@@ -64,6 +65,28 @@ class PaperlessClient:
 
         self._tags_cache = None
 
+    def document_exists(self, title: str) -> bool:
+        """
+        检查指定标题的文档是否存在
+        :param title: 要检查的文档标题
+        :return: 是否存在（True/False）
+        """
+        try:
+            # 使用精确查询参数（假设API支持title__iexact过滤）
+            response = self._request(
+                'GET',
+                '/api/documents/',
+                params={'title__iexact': title}
+            )
+            data = response.json()
+            return data['count'] > 0
+        except PaperlessAPIError as e:
+            if e.response.status_code == 400:
+                # 处理不支持的过滤参数，改用全量查询
+                return any(doc['title'].lower().strip() == title.lower().strip()
+                           for doc in self.iterate_all_documents())
+            raise
+
     def get_tags(self, force_refresh: bool = False) -> Dict[str, int]:
         """获取所有标签的名称到ID的映射（带缓存）"""
         if self._tags_cache is None or force_refresh:
@@ -95,7 +118,6 @@ class PaperlessClient:
             self._tags_cache[name] = new_tag['id']
 
         return new_tag['id']
-
 
     def _paginate(self, endpoint: str, params: Optional[Dict] = None) -> Generator[Dict, None, None]:
         """通用分页获取所有结果的生成器"""
@@ -188,7 +210,8 @@ class PaperlessClient:
         tag_names: Optional[List[str]] = None,
         archive_serial_number: Optional[int] = None,
         custom_field_ids: Optional[List[int]] = None,
-        auto_create_tags: bool = False  # 新增参数
+        check_existing: bool = True,
+        auto_create_tags: bool = True  # 新增参数
     ) -> Dict[str, Any]:
         """
         Upload a document to Paperless
@@ -198,17 +221,23 @@ class PaperlessClient:
         :return: Consumption task information
         """
 
+        if check_existing and self.document_exists(title):
+            logger.info(f"Document '{title}' already exists. Skipping upload.")
+            return
+
         if tag_ids is not None and tag_names is not None:
-            raise ValueError("不能同时指定 tag_ids 和 tag_names")
+            logger.error("Cannot specify both tag_ids and tag_names")
+            raise ValueError("Cannot specify both tag_ids and tag_names")
 
         resolved_tag_ids = tag_ids
         if tag_names is not None:
             tag_map = self.get_tags()
             missing_tags = [name for name in tag_names if name not in tag_map]
-            
+
             # 自动创建缺失标签
             if missing_tags and auto_create_tags:
-                logger.info(f"Creating missing tags: {', '.join(missing_tags)}")
+                logger.info(
+                    f"Creating missing tags: {', '.join(missing_tags)}")
                 for name in missing_tags:
                     new_id = self.create_tag(name)
                     tag_map[name] = new_id
@@ -216,9 +245,8 @@ class PaperlessClient:
                 self._tags_cache = tag_map
             elif missing_tags:
                 raise ValueError(f"以下标签不存在: {', '.join(missing_tags)}")
-                
-            resolved_tag_ids = [tag_map[name] for name in tag_names]
 
+            resolved_tag_ids = [tag_map[name] for name in tag_names]
 
         endpoint = "/api/documents/post_document/"
         metadata = {
@@ -425,7 +453,8 @@ if __name__ == "__main__":
         task = client.upload_document(
             file_path="/Volumes/personal_folder/code/paper-gather-system/src/papers/Exploring the Generalizability of Geomagnetic Navigation_ A Deep Reinforcement Learning approach with Policy Distillation.pdf",
             title="Exploring the Generalizability of Geomagnetic Navigation: A Deep Reinforcement Learning Approach with Policy Distillation",
-            tag_names=["deep-learning", "reinforcement-learning", "navigation"],
+            tag_names=["deep-learning",
+                       "reinforcement-learning", "navigation"],
             auto_create_tags=True
         )
 
