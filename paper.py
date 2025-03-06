@@ -141,4 +141,4 @@ if __name__ == "__main__":
     )
 
     paper_processor.searchPaperByTopic(
-        topic="paper of learning navigation", search_limit=10)
+        topic="paper of learning navigation", search_limit=1)
