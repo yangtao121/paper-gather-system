@@ -102,7 +102,7 @@ class ArxivData:
                             pbar.update(len(chunk))
             else:
                 pdf_path = os.path.join(save_path, pdf_title + ".pdf")
-                
+
                 self.pdf_path = pdf_path
 
                 with open(pdf_path, 'wb') as f, \
@@ -124,13 +124,22 @@ class ArxivData:
             raise Exception(f"PDF下载失败: {str(e)}")
         except IOError as e:
             raise Exception(f"PDF保存失败: {str(e)}")
-        
+
     def clearPdf(self):
         """
         清空PDF内容, 释放内存
         """
         self.pdf = None
-        
+
+    def clear_invalid_characters(self, string: str) -> str:
+        """
+        去除字符串中的非法字符
+        """
+        invalid_characters = ['/', ':', '*', '?',
+                              '\\', '<', '>', '|', ' ', '"', "'"]
+        for char in invalid_characters:
+            string = string.replace(char, '_')
+        return string
 
 
 class ArxivResult:

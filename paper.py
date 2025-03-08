@@ -35,13 +35,18 @@ class PaperProcessor:
             auth=self.config["paperless_token"]
         )
 
+        # 文件系统，每个模块只管理到自己能触及的层面
+        self.cache_dir = self.config["cache_dir"]
+
         # 检查缓存区有没有创建
-        if not os.path.exists(self.config["cache_dir"]):
-            os.makedirs(self.config["cache_dir"])
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir)
 
     def searchPaperByTopic(self, topic: str,
                            search_limit: int = 10,
-                           searngx_kwargs: dict = {}
+                           check_exist: bool = True,
+                           searngx_kwargs: dict = {},
+
                            ):
         """
         通过主题搜索相应的论文
@@ -64,7 +69,7 @@ class PaperProcessor:
         for paper in search_result:
             llm_start_time = time.time()
             # check the paper has been analyzed
-            if self.paperless_client.document_exists(paper.title):
+            if check_exist and self.paperless_client.document_exists(paper.title):
                 logger.info(
                     f"The paper \"{paper.title}\" has been analyzed.")
                 continue
@@ -88,6 +93,13 @@ class PaperProcessor:
             # start to analyze the paper tag
 
             if llm_eval['rating'] == "A" or llm_eval['rating'] == "B":
+                # 创建该文档工作空间
+                paper_workspace = os.path.join(
+                    self.config["cache_dir"], paper.clear_invalid_characters(paper.title))
+                if not os.path.exists(paper_workspace):
+                    os.makedirs(paper_workspace)
+
+                # 分析该文档的标签
                 result = self.dify_client.workflow_run(
                     inputs={
                         "title": paper.title,
@@ -109,7 +121,8 @@ class PaperProcessor:
 
                 if self.config["save_paper"]:
                     paper.downloadPdf(
-                        save_path=self.config["cache_dir"])
+                        save_path=paper_workspace,
+                    )
 
                     paperless_result = self.paperless_client.upload_document(
                         file_path=paper.pdf_path,
@@ -124,7 +137,7 @@ class PaperProcessor:
 
                     # 删除缓存
                     paper.clearPdf()
-                    os.remove(paper.pdf_path)
+                    # os.remove(paper.pdf_path)
 
             llm_end_time = time.time()
             logger.info(
@@ -141,4 +154,6 @@ if __name__ == "__main__":
     )
 
     paper_processor.searchPaperByTopic(
-        topic="paper of learning navigation", search_limit=1)
+        topic="paper of learning navigation", search_limit=1,
+        check_exist=False
+    )

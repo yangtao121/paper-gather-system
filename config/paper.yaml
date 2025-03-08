@@ -1,3 +1,5 @@
+ollama_url: http://192.168.5.72:11434
+
 dify_user: user123
 dify_url: http://192.168.5.72
 dify_api_paper_detect: app-nxWuBjy7S969esLGJtPyzdvN
