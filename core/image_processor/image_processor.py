@@ -4,6 +4,8 @@ import layoutparser as lp
 import cv2
 import os
 from pprint import pprint
+from segment_data import TextSegment
+from ollama_ocr import OCRProcessor
 
 
 class ImageProcessor:
@@ -29,7 +31,9 @@ class ImageProcessor:
     def __init__(self,
                  image_path: str,
                  segments_workspace: str,
-                 image_type: str = "research paper"):
+                 image_type: str = "research paper",
+                 ollama_ocr_config: dict = {}
+                 ):
         self.image_path = image_path
         self.segments_workspace = segments_workspace
 
@@ -48,12 +52,17 @@ class ImageProcessor:
             self.model = None
         logger.info(f"Image type set to: {self.image_type}")
 
-    def pdf_image_process(self):
+        self.ollama_ocr = OCRProcessor(**ollama_ocr_config)  # 初始化 ollama_ocr
+
+        # 初始化 segments
+        self.segments = []
+
+    def pdf_image_process(self, extract_text: bool = True):
         if self.model is None:
             raise ValueError("布局分析模型未正确初始化，请检查模型加载日志")
         layout = self.model.detect(self.image)
 
-        print(layout)
+        # print(layout)
 
         # 按照阅读顺序排序（先垂直后水平）
         layout.sort(key=lambda b: b.coordinates[1], inplace=True)
@@ -78,6 +87,24 @@ class ImageProcessor:
             # 保存图片
             cv2.imwrite(output_path, segment)
 
+            text_segment = TextSegment(
+                image_path=output_path,
+                type=block.type,
+            )
+
+            if extract_text:
+                text_segment.content = self.ollama_ocr.process_image(
+                    image_path=output_path,
+                    format_type="markdown",
+                    preprocess=False,
+                    # custom_prompt=None
+                )
+
+                print(f"result for segment:{idx}:")
+                print(text_segment.content)
+
+            self.segments.append(text_segment)
+
         return layout
 
 
@@ -85,10 +112,12 @@ if __name__ == "__main__":
     from matplotlib import pyplot as plt
     # from pprint import pprint
     image_processor = ImageProcessor(
-        image_path="/Users/yangtao/Documents/code.nosync/paper-gather-system/src/papers/Exploring_the_Generalizability_of_Geomagnetic_Navigation__A_Deep_Reinforcement_Learning_approach_with_Policy_Distillation/images/page1.png",
-        segments_workspace="/Users/yangtao/Documents/code.nosync/paper-gather-system/src/papers/Exploring_the_Generalizability_of_Geomagnetic_Navigation__A_Deep_Reinforcement_Learning_approach_with_Policy_Distillation/segments/page1"
+        image_path="/Users/yangtao/Documents/code.nosync/paper-gather-system/src/papers/Exploring_the_Generalizability_of_Geomagnetic_Navigation__A_Deep_Reinforcement_Learning_approach_with_Policy_Distillation/images/page11.png",
+        segments_workspace="/Users/yangtao/Documents/code.nosync/paper-gather-system/src/papers/Exploring_the_Generalizability_of_Geomagnetic_Navigation__A_Deep_Reinforcement_Learning_approach_with_Policy_Distillation/segments/page11",
+        ollama_ocr_config={
+            "base_url": "http://192.168.5.72:11434/api/generate",}
     )
-    layout = image_processor.pdf_image_process()
+    layout = image_processor.pdf_image_process(extract_text=False)
 
     # 使用更简单的绘图方式，避免字体大小问题
     # image = lp.draw_box(image_processor.image,

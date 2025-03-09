@@ -17,3 +17,4 @@ Required models:
 - qwen2.5:latest         
 - qwq:latest              
 - llama3.2-vision:11b 
+- minicpm-v(used for ollama ocr)
