@@ -2,6 +2,7 @@ import fitz
 from loguru import logger
 from tqdm import tqdm
 import os
+from core.image_processor import PDFImageProcessor
 
 
 class PDFProcessor:
@@ -66,8 +67,14 @@ class PDFProcessor:
             raise e
 
         self.image_paths = []
+        self.pdf_image_processors = []
 
-    def convert_to_image(self, dpi=300):
+    def convert_to_image(self, 
+                         process_image: bool = True,
+                         image_enhance: bool = False,
+                         dpi=300,
+                         fix_size: bool = False,
+                         fix_length: int = 672):
         """
         将PDF转换为图片。
 
@@ -96,13 +103,28 @@ class PDFProcessor:
                 segment_path = os.path.join(self.segments_workspace,
                                             f"page{page.number + 1}")
                 os.makedirs(segment_path, exist_ok=True)
+                
+                if process_image:
+                    image_processor = PDFImageProcessor(
+                        image_path=image_path,
+                        segments_workspace=segment_path,
+                        image_type="research paper",
+                        image_enhance=image_enhance,
+                        fix_size=fix_size,
+                        fix_length=fix_length,
+                    )
+                    # 将图片进行分割
+                    image_processor.pdf_image_process()
+                    self.pdf_image_processors.append(image_processor)
                 pbar.update(1)  # 更新进度条
+                
+            
 
         return self.image_paths
 
 
 if __name__ == "__main__":
     pdf_processor = PDFProcessor(
-        "/Users/yangtao/Documents/code.nosync/paper-gather-system/src/papers/Exploring_the_Generalizability_of_Geomagnetic_Navigation__A_Deep_Reinforcement_Learning_approach_with_Policy_Distillation",
+        "/home/ai-server/dev/paper-gather-system/src/papers/Exploring_the_Generalizability_of_Geomagnetic_Navigation__A_Deep_Reinforcement_Learning_approach_with_Policy_Distillation",
     )
-    pdf_processor.convert_to_image()
+    pdf_processor.convert_to_image(process_image=True)

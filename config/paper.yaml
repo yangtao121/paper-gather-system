@@ -1,9 +1,9 @@
-ollama_url: http://192.168.5.72:11434
+ollama_url: http://192.168.5.248:11434
 
 dify_user: user123
-dify_url: http://192.168.5.72
-dify_api_paper_detect: app-nxWuBjy7S969esLGJtPyzdvN
-dify_api_paper_tag: app-0ZFysETOZbwPZvWJL67Tx8EP
+dify_url: http://192.168.5.54:5001
+dify_api_paper_detect: app-5ouBKP8R81FXAjBgSg3kblfr
+dify_api_paper_tag: app-4CUMRTiIUHOczjhSx6I4V8QZ
 
 searxng_host: http://192.168.5.54:8080
 

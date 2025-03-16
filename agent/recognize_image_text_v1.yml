@@ -1,0 +1,981 @@
+app:
+  description: 识别图片中的文字
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: recognize_image_text
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/ollama:0.0.3@9ded90ac00e8510119a24be7396ba77191c9610d5e1e29f59d68fa1229822fc7
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: llm
+      id: 1741467232625-source-1742113942668-target
+      source: '1741467232625'
+      sourceHandle: source
+      target: '1742113942668'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: parameter-extractor
+      id: 1742113942668-source-1742116355675-target
+      source: '1742113942668'
+      sourceHandle: source
+      target: '1742116355675'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: parameter-extractor
+        targetType: if-else
+      id: 1742116355675-source-1742117920758-target
+      source: '1742116355675'
+      sourceHandle: source
+      target: '1742117920758'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1742117920758-true-17421180172300-target
+      source: '1742117920758'
+      sourceHandle: 'true'
+      target: '17421180172300'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: end
+      id: 1742117920758-8622a988-8e2b-458f-b521-b3358d9a881a-1742123750540-target
+      source: '1742117920758'
+      sourceHandle: 8622a988-8e2b-458f-b521-b3358d9a881a
+      target: '1742123750540'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: parameter-extractor
+      id: 17421180172300-source-17421246513790-target
+      source: '17421180172300'
+      sourceHandle: source
+      target: '17421246513790'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: parameter-extractor
+        targetType: if-else
+      id: 17421246513790-source-1742125325612-target
+      source: '17421246513790'
+      sourceHandle: source
+      target: '1742125325612'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1742125325612-true-1741467305238-target
+      source: '1742125325612'
+      sourceHandle: 'true'
+      target: '1741467305238'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1742125325612-cde57bcc-7a2a-4953-8682-5b8dc49a9a7e-17421266720950-target
+      source: '1742125325612'
+      sourceHandle: cde57bcc-7a2a-4953-8682-5b8dc49a9a7e
+      target: '17421266720950'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1741467305238-source-1742127281410-target
+      source: '1741467305238'
+      sourceHandle: source
+      target: '1742127281410'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 17421266720950-source-1742127281410-target
+      source: '17421266720950'
+      sourceHandle: source
+      target: '1742127281410'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: variable-aggregator
+      id: 1742125325612-false-1742127460174-target
+      source: '1742125325612'
+      sourceHandle: 'false'
+      target: '1742127460174'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: variable-aggregator
+      id: 1742117920758-false-1742127460174-target
+      source: '1742117920758'
+      sourceHandle: 'false'
+      target: '1742127460174'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: variable-aggregator
+        targetType: end
+      id: 1742127460174-source-1742123829535-target
+      source: '1742127460174'
+      sourceHandle: source
+      target: '1742123829535'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: variable-aggregator
+        targetType: llm
+      id: 1742127281410-source-17421276550100-target
+      source: '1742127281410'
+      sourceHandle: source
+      target: '17421276550100'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: parameter-extractor
+      id: 17421276550100-source-17421320933490-target
+      source: '17421276550100'
+      sourceHandle: source
+      target: '17421320933490'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: parameter-extractor
+        targetType: end
+      id: 17421320933490-source-1742127408610-target
+      source: '17421320933490'
+      sourceHandle: source
+      target: '1742127408610'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - image
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+          label: image
+          max_length: 48
+          options: []
+          required: false
+          type: file
+          variable: image
+        - label: ocr_result
+          max_length: 30000
+          options: []
+          required: false
+          type: paragraph
+          variable: ocr_result
+      height: 116
+      id: '1741467232625'
+      position:
+        x: 11.321473190293887
+        y: 197.27446952192037
+      positionAbsolute:
+        x: 11.321473190293887
+        y: 197.27446952192037
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            mirostat: 1
+            num_ctx: 16000
+            num_predict: 32768
+            repeat_last_n: -1
+            temperature: 0.3
+            top_k: 21
+            top_p: 0.2
+          mode: chat
+          name: minicpm-v:8b-2.6-q8_0
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: 0f86d775-a544-4a46-a3fb-1239b62d9faa
+          role: system
+          text: "**Image-to-Text Conversion Task**  \nAccurately extract and transcribe\
+            \ all textual content and mathematical notation from the given image paragraph\
+            \ while:  \n1. Preserving the original sequence of text and mathematical\
+            \ elements exactly as they appear visually  \n2. Excluding any content\
+            \ not explicitly present in the image (no extrapolation/interpretation)\
+            \  \n3. Formatting requirements:  \n   - Mathematical symbols/formulas:\
+            \ `Markdown syntax` (e.g., `$E=mc^2$`, `$$\\int_{a}^{b} f(x)dx$$`)  \n\
+            \   - Natural language text: Plain format without markdown  \n4. Prohibited\
+            \ actions:  \n   - Reordering original content  \n   - Adding explanatory\
+            \ text  \n   - Modifying detected formulas  \n   - Completing partial\
+            \ formulas  \n\nOutput ONLY the verified transcription matching the visual\
+            \ content precisely.  \n"
+        selected: false
+        title: LLM数学字符段落提取
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1741467232625'
+            - image
+          enabled: true
+      height: 90
+      id: '1741467305238'
+      position:
+        x: 2550.6383919548884
+        y: -34.456054102520184
+      positionAbsolute:
+        x: 2550.6383919548884
+        y: -34.456054102520184
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 判断是否有数学公式
+        model:
+          completion_params:
+            num_ctx: 13107
+            num_predict: 131072
+            repeat_last_n: -1
+            temperature: 0.7
+            top_k: 11
+            top_p: 0.2
+          mode: chat
+          name: deepseek-r1
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - edition_type: basic
+          id: 4da53593-f934-406c-803c-ba4a038a164f
+          role: system
+          text: "\"Analyze the provided OCR-generated text excerpt from a research\
+            \ paper. Determine whether the original text likely contained mathematical\
+            \ symbols or formulas based on contextual clues, technical terms, or equation\
+            \ references (e.g., 'Equation 1.2'). Ignore general scientific jargon\
+            \ and focus on indicators specific to mathematical content. Return a JSON\
+            \ response with:  \n1. `contain`: 'true' if mathematical elements are\
+            \ inferred, 'false' otherwise.  \n2. `reason`: A concise explanation citing\
+            \ relevant keywords or patterns that support your conclusion.  \nExample\
+            \ input: '... this follows from Equation 1.2 when considering the variables\
+            \ α and β ...' → Output: {'contain':'true', 'reason':'Mentions equation\
+            \ labels and Greek letters as variables.'}\"\n\n Provided OCR-generated\
+            \ text:\n{{#1741467232625.ocr_result#}}"
+        selected: false
+        title: LLM文本辨别器(数学)
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '1742113942668'
+      position:
+        x: 354.52689148432864
+        y: 197.27446952192037
+      positionAbsolute:
+        x: 354.52689148432864
+        y: 197.27446952192037
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        instruction: "\"Extract the **innermost JSON block** from the `text` field\
+          \ of the provided R1 model output. Follow these steps:  \n1. Ignore all\
+          \ natural language text, including reasoning or conversational content (e.g.,\
+          \ `...\\n`).  \n2. Identify the JSON code block wrapped in triple backticps\
+          \ (` ```json ... ``` `).  \n3. Output **only** the extracted JSON object,\
+          \ ensuring:  \n   - Valid syntax (no markdown formatting)  \n   - Correct\
+          \ structure: `{'contain':'true/false', 'reason':'...'}`  \n   - Preservation\
+          \ of original quotes and capitalization  \n\nExample R1 Output:  \n```json\n\
+          {'text': \"\\n...\\n```json\\n{\\\"contain\\\": \\\"true\\\", \\\"reason\\\
+          \": \\\"...\\\"}\\n```\"}\n```  \nExpected Qwen Output:  \n```json\n{\"\
+          contain\": \"true\", \"reason\": \"...\"}\n```\"  \nInput:\n{{#1742113942668.text#}}\n"
+        model:
+          completion_params:
+            format: json
+            keep_alive: 50m
+            num_ctx: 16000
+            num_predict: 32768
+            repeat_last_n: -1
+            temperature: 0.7
+          mode: chat
+          name: qwen2.5:14b
+          provider: langgenius/ollama/ollama
+        parameters:
+        - description: "{\n  \"contain\": \"true/false\",\n  \"reason\": \"xxxx\"\n\
+            }"
+          name: json
+          required: false
+          type: string
+        query:
+        - '1742113942668'
+        - text
+        reasoning_mode: prompt
+        selected: false
+        title: JSON提取器
+        type: parameter-extractor
+        variables: []
+        vision:
+          enabled: false
+      height: 90
+      id: '1742116355675'
+      position:
+        x: 656.7857903577362
+        y: 181.6045593825902
+      positionAbsolute:
+        x: 656.7857903577362
+        y: 181.6045593825902
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 1de2e32f-7f0a-42ca-b163-0665b93e84d7
+            value: 'true'
+            varType: string
+            variable_selector:
+            - '1742116355675'
+            - json
+          - comparison_operator: contains
+            id: 4a52f897-8bfc-4d0a-b1b7-7e41ea19b55f
+            value: contain
+            varType: string
+            variable_selector:
+            - '1742116355675'
+            - json
+          id: 'true'
+          logical_operator: and
+        - case_id: 8622a988-8e2b-458f-b521-b3358d9a881a
+          conditions:
+          - comparison_operator: contains
+            id: b94bd120-98c5-4029-84ad-0ae2f260a26e
+            value: 'false'
+            varType: string
+            variable_selector:
+            - '1742116355675'
+            - json
+          - comparison_operator: contains
+            id: 3c282b56-62ce-4f4e-8b30-c57133aa394c
+            value: contain
+            varType: string
+            variable_selector:
+            - '1742116355675'
+            - json
+          id: 8622a988-8e2b-458f-b521-b3358d9a881a
+          logical_operator: and
+        desc: 判断有无数学符号，如果有则执行进一步分析
+        selected: false
+        title: 数学符号判断
+        type: if-else
+      height: 270
+      id: '1742117920758'
+      position:
+        x: 982.3195101459219
+        y: 181.6045593825902
+      positionAbsolute:
+        x: 982.3195101459219
+        y: 181.6045593825902
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 判断该文本是不是公式
+        model:
+          completion_params:
+            num_ctx: 131072
+            num_predict: 131072
+            repeat_last_n: -1
+            temperature: 0.7
+            top_k: 11
+            top_p: 0.2
+          mode: chat
+          name: deepseek-r1
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - edition_type: basic
+          id: 4da53593-f934-406c-803c-ba4a038a164f
+          role: system
+          text: "\n\"Determine whether the text  contains **only a mathematical formula**\
+            \ (e.g., isolated equations/symbols) or **both a formula and additional\
+            \ natural language text** (e.g., explanations, sentences). Return JSON:\
+            \  \n- `contain`: `true` if the text mixes formulas with non-formula text,\
+            \ `false` if purely formulaic.  \n- `reason`: Explain based on syntax\
+            \ (e.g., sentences, punctuation) or contextual keywords.  \n\n**Rules:**\
+            \  \n1. **Pure Formula**: Contains *only* variables, operators, parentheses,\
+            \ and mathematical notation (e.g., `TTD3-ST = Tgoal + a(...)`).  \n2.\
+            \ **Mixed Text**: Includes natural language (e.g., articles, verbs, full\
+            \ sentences) alongside formulas (e.g., `We derive TTD3-ST = ...`).  \n\
+            \n**Example Analysis:**  \n- Input: `\"E = mc² + ∇×A\"\"`  \n  → Output:\
+            \ `{\"contain\": \"false\", \"reason\": \"Pure formula with mathematical\
+            \ symbols/operators, no surrounding text\"}`  \n- Input: `\"To model the\
+            \ system, we use Equation 3: v(t) = v₀ + at, where v₀ denotes initial\
+            \ velocity and a is acceleration.\"`  \n  → Output: `{\"contain\": \"\
+            false\", \"reason\": \"Pure formula with mathematical symbols/operators,\
+            \ no surrounding text.\"} `  \n\nFocus on syntax (e.g., sentence structure,\
+            \ punctuation) rather than formula correctness.\"\n\nNow judge this text:\n\
+            - Input:\n{{#1741467232625.ocr_result#}}"
+        selected: false
+        title: LLM公式辨别器
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '17421180172300'
+      position:
+        x: 1387.822124365503
+        y: 11.112282192605022
+      positionAbsolute:
+        x: 1387.822124365503
+        y: 11.112282192605022
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 判断为纯文本直接输出
+        outputs:
+        - value_selector:
+          - '1741467232625'
+          - ocr_result
+          variable: ocr_result
+        selected: false
+        title: 直接输出文本
+        type: end
+      height: 118
+      id: '1742123750540'
+      position:
+        x: 1431.7364780134856
+        y: 224.3799212971407
+      positionAbsolute:
+        x: 1431.7364780134856
+        y: 224.3799212971407
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 提取出异常
+        outputs:
+        - value_selector:
+          - '1742127460174'
+          - output
+          variable: output
+        selected: false
+        title: 异常结束
+        type: end
+      height: 118
+      id: '1742123829535'
+      position:
+        x: 3371.758558612163
+        y: 411.9167425097032
+      positionAbsolute:
+        x: 3371.758558612163
+        y: 411.9167425097032
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 提取公式辨别器内容
+        instruction: "\"Extract the **innermost JSON block** from the `text` field\
+          \ of the provided R1 model output. Follow these steps:  \n1. Ignore all\
+          \ natural language text, including reasoning or conversational content (e.g.,\
+          \ `...\\n`).  \n2. Identify the JSON code block wrapped in triple backticps\
+          \ (` ```json ... ``` `).  \n3. Output **only** the extracted JSON object,\
+          \ ensuring:  \n   - Valid syntax (no markdown formatting)  \n   - Correct\
+          \ structure: `{'contain':'true/false', 'reason':'...'}`  \n   - Preservation\
+          \ of original quotes and capitalization  \n\nExample R1 Output:  \n```json\n\
+          {'text': \"\\n...\\n```json\\n{\\\"contain\\\": \\\"true\\\", \\\"reason\\\
+          \": \\\"...\\\"}\\n```\"}\n```  \nExpected Qwen Output:  \n```json\n{\"\
+          contain\": \"true\", \"reason\": \"...\"}\n```\"  \nInput:\n{{#17421180172300.text#}}\n"
+        model:
+          completion_params:
+            format: json
+            num_ctx: 16000
+            num_predict: 32768
+            repeat_last_n: -1
+            temperature: 0.7
+          mode: chat
+          name: qwen2.5:14b
+          provider: langgenius/ollama/ollama
+        parameters:
+        - description: "{\n  \"contain\": \"true/false\",\n  \"reason\": \"xxxx\"\n\
+            }"
+          name: json
+          required: false
+          type: string
+        query:
+        - '17421180172300'
+        - text
+        reasoning_mode: prompt
+        selected: false
+        title: JSON提取器(公式)
+        type: parameter-extractor
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '17421246513790'
+      position:
+        x: 1793.145553975557
+        y: 5.511922854998659
+      positionAbsolute:
+        x: 1793.145553975557
+        y: 5.511922854998659
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 778fd978-2c96-4c6c-acd9-29f93b78901f
+            value: contain
+            varType: string
+            variable_selector:
+            - '17421246513790'
+            - json
+          - comparison_operator: contains
+            id: 6e65f8c2-5dc9-43b9-9ab3-fa34af7074c5
+            value: 'true'
+            varType: string
+            variable_selector:
+            - '17421246513790'
+            - json
+          id: 'true'
+          logical_operator: and
+        - case_id: cde57bcc-7a2a-4953-8682-5b8dc49a9a7e
+          conditions:
+          - comparison_operator: contains
+            id: a72ef70a-2ab7-4c2a-873b-0d402ba053d0
+            value: contain
+            varType: string
+            variable_selector:
+            - '17421246513790'
+            - json
+          - comparison_operator: contains
+            id: 240d1820-21a6-40a5-b3f9-cd13c91d9712
+            value: 'false'
+            varType: string
+            variable_selector:
+            - '17421246513790'
+            - json
+          id: cde57bcc-7a2a-4953-8682-5b8dc49a9a7e
+          logical_operator: and
+        desc: 如果结果为true，则认为是段落；如果为false，认为公式
+        selected: false
+        title: 公式分支处理
+        type: if-else
+      height: 270
+      id: '1742125325612'
+      position:
+        x: 2097.145553975557
+        y: 5.511922854998659
+      positionAbsolute:
+        x: 2097.145553975557
+        y: 5.511922854998659
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            mirostat: 1
+            num_ctx: 16000
+            num_predict: 32768
+            repeat_last_n: -1
+            temperature: 0.3
+            top_k: 21
+            top_p: 0.2
+          mode: chat
+          name: minicpm-v:8b-2.6-q8_0
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - id: 0f86d775-a544-4a46-a3fb-1239b62d9faa
+          role: system
+          text: "*Task*: Analyze the provided image and output ONLY the exact mathematical\
+            \ formula it contains.  \n\n*Requirements*:  \n1. **Strict accuracy**:\
+            \  \n   - Do NOT generate any characters, symbols, or formula components\
+            \ not visually present in the image.  \n   - If the image shows an incomplete/ambiguous\
+            \ formula, output ONLY what is decipherable.  \n\n2. **Formatting**: \
+            \ \n   - Wrap mathematical expressions in Markdown: `$$ [formula] $$`\
+            \  \n   - Use standard LaTeX notation for symbols  \n   - Keep non-formula\
+            \ text (if any) in plain format  \n\n3. **Validation**:  \n   - Reject\
+            \ the request if the formula cannot be unambiguously identified  \n  \
+            \ - Prioritize character-level accuracy over contextual interpretation\
+            \  \n\n*Output Example*:  \n$$ \\int_{0}^{\\infty} x^2 e^{-ax} dx $$ \
+            \ \n\n*Prohibition*:  \n✖ No extrapolation ✖ No assumed characters ✖ No\
+            \ non-Markdown math formatting  "
+        selected: false
+        title: LLM公式提取
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1741467232625'
+            - image
+          enabled: true
+      height: 90
+      id: '17421266720950'
+      position:
+        x: 2445.3758404525174
+        y: 63.35055079812949
+      positionAbsolute:
+        x: 2445.3758404525174
+        y: 63.35055079812949
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        advanced_settings:
+          group_enabled: false
+          groups:
+          - groupId: db33fd61-c5c4-4e1e-bf75-9fd452a5cfd5
+            group_name: Group1
+            output_type: string
+            variables:
+            - - '17421266720950'
+              - text
+            - - '1741467305238'
+              - text
+        desc: ''
+        output_type: string
+        selected: false
+        title: 变量聚合器(成功)
+        type: variable-aggregator
+        variables:
+        - - '17421266720950'
+          - text
+        - - '1741467305238'
+          - text
+      height: 131
+      id: '1742127281410'
+      position:
+        x: 3031.821988137732
+        y: 68.2047373866354
+      positionAbsolute:
+        x: 3031.821988137732
+        y: 68.2047373866354
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - '17421320933490'
+          - json
+          variable: output
+        selected: false
+        title: 结果输出
+        type: end
+      height: 90
+      id: '1742127408610'
+      position:
+        x: 4353.238385275665
+        y: 86.24002203093764
+      positionAbsolute:
+        x: 4353.238385275665
+        y: 86.24002203093764
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        output_type: string
+        selected: false
+        title: 变量聚合器(失败)
+        type: variable-aggregator
+        variables:
+        - - '17421246513790'
+          - __reason
+        - - '1742116355675'
+          - __reason
+      height: 131
+      id: '1742127460174'
+      position:
+        x: 2881.800873277507
+        y: 422.40169673654486
+      positionAbsolute:
+        x: 2881.800873277507
+        y: 422.40169673654486
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 判断是否有数学公式
+        model:
+          completion_params:
+            num_ctx: 131072
+            num_predict: 131072
+            repeat_last_n: -1
+            temperature: 0.7
+            top_k: 11
+            top_p: 0.2
+          mode: chat
+          name: deepseek-r1
+          provider: langgenius/ollama/ollama
+        prompt_template:
+        - edition_type: basic
+          id: 4da53593-f934-406c-803c-ba4a038a164f
+          role: system
+          text: "**Task:** Synthesize two input sources (OCR text and multimodal extraction)\
+            \ to reconstruct PDF content that maintains original text sequence with\
+            \ accurate mathematical notation. Output JSON format: `{\"content\": \"\
+            ...\"}`\n\n**Input Sources:**\n1. **OCR Output** \n   - ✅ Pros: Correct\
+            \ text order, reliable non-mathematical characters\n   - ❌ Cons: Poor\
+            \ mathematical symbol/formula recognition\n\n2. **Multimodal Extraction**\n\
+            \   - ✅ Pros: Accurate math notation, format preservation (italics, etc.)\n\
+            \   - ❌ Cons: Possible text gaps, order inconsistencies, duplicates\n\n\
+            **Processing Requirements:**\n1. **Base Structure:** Use OCR text for\
+            \ main sequence and paragraph structure\n2. **Math Integration:** \n \
+            \  - Identify OCR's weak math regions (equations, symbols)\n   - Replace\
+            \ with corresponding multimodal content using:\n     - Pattern matching\
+            \ (equation positions)\n     - Symbol recognition (LaTeX equivalents)\n\
+            \     - Format preservation\n3. **Validation Checks:**\n   - Resolve conflicts\
+            \ using position-weighted scoring\n   - Remove duplicates while preserving\
+            \ context\n   - Maintain original emphasis (italics/bold) from multimodal\n\
+            \n**Output Rules:**\n- Strict JSON format (`{\"content\": \"...\"}`)\n\
+            - Preserve natural paragraph breaks\n- Math expressions in LaTeX format\
+            \ (e.g., `\\(E=mc^2\\)`)\n- No markdown formatting\n- No source attribution\
+            \ comments\n\n**Example Output:**\n```json\n{\n  \"content\": \"The Lorentz\
+            \ factor γ is defined as \\( \\gamma = \\frac{1}{\\sqrt{1 - v^2/c^2}}\
+            \ \\). This fundamental equation in special relativity shows... Subsequent\
+            \ calculations reveal...\"\n}\n```\n\nOCR Output:{{#1741467232625.ocr_result#}}\n\
+            Multimodal Extraction:{{#1742127281410.output#}}\n"
+        selected: false
+        title: LLM文本整合
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '17421276550100'
+      position:
+        x: 3566.038602481126
+        y: 63.35055079812949
+      positionAbsolute:
+        x: 3566.038602481126
+        y: 63.35055079812949
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 提取公式辨别器内容
+        instruction: "Execute these steps sequentially when receiving ANY text input:\n\
+          \n1. **Depth-First Isolation**  \n   - Locate the LAST valid JSON block\
+          \ wrapped in triple backticks (` ```json [...] ``` `)  \n   - Ignore partial/incomplete\
+          \ code blocks or JSON fragments  \n   - If multiple found, choose the MOST\
+          \ NESTED valid structure\n\n2. **Content Purification**  \n   a) Strip ALL\
+          \ non-JSON artifacts:  \n      - Remove code block markers (` ```json`/`\
+          \ ``` `)  \n      - Delete leading/trailing non-JSON characters (包括中文/日文/韩文)\
+          \  \n   b) Standardize formatting:  \n      - Convert single quotes to double\
+          \ quotes  \n      - Fix escaped quotes (`\\\"` → `\"`, `\\'` → `'`)  \n\
+          \      - Ensure proper comma separation\n\n3. **Structural Validation**\
+          \  \n   Confirm output contains EXACTLY:  \n   ```json\n   {\n     \"contain\"\
+          : \"true\"/\"false\",\n     \"reason\": \"string explanation\"\n   }\n \
+          \  ```\n   - Case-sensitive key preservation  \n   - Valid UTF-8 encoding\
+          \  \n   - No markdown/XML/HTML tags\n\n4. **Failure Protocol**  \n   If\
+          \ no compliant JSON detected after 3 scan attempts:  \n   ```json\n   {\"\
+          contain\": \"false\", \"reason\": \"No valid JSON structure identified\"\
+          }\n   ```\n\n**Canonical Demonstration**  \nInput:  \n`Analysis: The result\
+          \ is ```json{\\n  'contain': \"true\",\\n  \"reason\": \\\"匹配成功\\\"\\n}```\
+          \ END`\n\nProcessing:  \n1. Remove ` ```json` and ````  \n2. Convert `'contain'`\
+          \ → `\"contain\"`  \n3. Unescape `\\\"匹配成功\\\"` → `\"匹配成功\"`\n\nOutput:\
+          \  \n```json\n{\"contain\": \"true\", \"reason\": \"匹配成功\"}\n```\n\nInput:\n\
+          {{#17421276550100.text#}}\n"
+        model:
+          completion_params:
+            format: json
+            num_ctx: 16000
+            num_predict: 32768
+            repeat_last_n: -1
+            temperature: 0.7
+          mode: chat
+          name: qwen2.5:14b
+          provider: langgenius/ollama/ollama
+        parameters:
+        - description: "{\n  \"content\": \"\",\n}"
+          name: json
+          required: false
+          type: string
+        query:
+        - '17421276550100'
+        - text
+        reasoning_mode: prompt
+        selected: false
+        title: JSON提取器(整合)
+        type: parameter-extractor
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '17421320933490'
+      position:
+        x: 3940.7700706008573
+        y: 81.3799212971409
+      positionAbsolute:
+        x: 3940.7700706008573
+        y: 81.3799212971409
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: -90.92129718617389
+      y: 86.74892489397132
+      zoom: 0.8705505632961257

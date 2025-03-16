@@ -84,6 +84,7 @@ class PaperProcessor:
                 api_key=self.config["dify_api_paper_detect"],
                 user=self.config["dify_user"]
             )
+            
 
             llm_eval = eval(result['data']['outputs']['result'])
             logger.info(f"The rating of the paper is {llm_eval['rating']}.")
@@ -154,6 +155,6 @@ if __name__ == "__main__":
     )
 
     paper_processor.searchPaperByTopic(
-        topic="paper of learning navigation", search_limit=1,
+        topic="LLM navigation", search_limit=1,
         check_exist=False
     )
